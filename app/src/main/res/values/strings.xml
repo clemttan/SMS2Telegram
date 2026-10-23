@@ -74,4 +74,21 @@
     <string name="sms_permission_denied_title">SMS Permission Required</string>
     <string name="sms_permission_denied_message">SMS permission is required to receive and forward messages. Please enable it in app settings.</string>
     <string name="open_settings">Open Settings</string>
+    <string name="allowed_senders">Allowed senders</string>
+    <string name="sender_filter_toggle">Only forward allowed senders</string>
+    <string name="sender_filter_help">Add the exact sender name or phone number shown on your SMS, for example HelloBike. Names ignore letter case. Phone numbers must include the same country code and formatting. Message contents are not checked.</string>
+    <string name="sender_filter_off">Filter off: all senders can be forwarded.</string>
+    <string name="sender_filter_empty">No senders allowed. No SMS will be forwarded.</string>
+    <string name="sender_filter_active">Filter on: %1$d allowed sender(s). All other SMS are ignored.</string>
+    <string name="sender_filter_saved">Changes save automatically. Pending messages are checked again before delivery. A message already being sent cannot be recalled. Test messages are sent manually and are not filtered.</string>
+    <string name="sender_input_hint">Sender name or phone number</string>
+    <string name="sender_add">Add sender</string>
+    <string name="sender_remove">Remove</string>
+    <string name="sender_remove_description">Remove %1$s from allowed senders</string>
+    <string name="sender_blank_error">Enter a sender name or phone number.</string>
+    <string name="sender_duplicate_error">This sender is already allowed.</string>
+    <string name="sender_list_empty">No senders added yet.</string>
+    <string name="sender_disable_title">Allow all senders?</string>
+    <string name="sender_disable_message">Turning this filter off allows every SMS sender to be forwarded when forwarding is enabled.</string>
+    <string name="sender_disable_confirm">Allow all senders</string>
 </resources>

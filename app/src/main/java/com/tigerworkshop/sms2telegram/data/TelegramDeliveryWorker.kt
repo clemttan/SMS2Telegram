@@ -48,6 +48,12 @@ class TelegramDeliveryWorker(
 
         while (true) {
             val pendingMessage = outbox.peekOldest() ?: break
+            // Recheck the current policy before every delivery, including offline retries.
+            if (!settingsRepository.loadSenderAllowlist().allows(pendingMessage.sender)) {
+                outbox.remove(pendingMessage.id)
+                saveStatus("${timestamp()} - Queued SMS removed by sender filter.")
+                continue
+            }
             val sendResult = telegramForwarder.sendMessage(
                 token = settings.apiToken,
                 chatId = settings.chatId,

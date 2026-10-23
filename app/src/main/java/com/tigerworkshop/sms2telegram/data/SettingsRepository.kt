@@ -23,6 +23,18 @@ class SettingsRepository(context: Context) {
         }
     }
 
+    fun loadSenderAllowlist(): SenderAllowlist = SenderAllowlist(
+        enabled = prefs.getBoolean(KEY_SENDER_FILTER_ENABLED, false),
+        senders = prefs.getStringSet(KEY_ALLOWED_SENDERS, emptySet()).orEmpty().toSet()
+    )
+
+    fun saveSenderAllowlist(allowlist: SenderAllowlist) {
+        prefs.edit {
+            putBoolean(KEY_SENDER_FILTER_ENABLED, allowlist.enabled)
+            putStringSet(KEY_ALLOWED_SENDERS, SenderAllowlist.clean(allowlist.senders))
+        }
+    }
+
     fun isFirstLaunch(): Boolean = prefs.getBoolean(KEY_FIRST_LAUNCH, true)
 
     fun setFirstLaunch(isFirstLaunch: Boolean) {
@@ -67,6 +79,8 @@ class SettingsRepository(context: Context) {
         private const val KEY_LAST_STATUS = "last_forward_status"
         private const val KEY_FORWARDING_ENABLED = "forwarding_enabled"
         private const val KEY_FIRST_LAUNCH = "first_launch"
+        private const val KEY_SENDER_FILTER_ENABLED = "sender_filter_enabled"
+        private const val KEY_ALLOWED_SENDERS = "allowed_senders"
         private const val KEY_SHOW_SIM_NAME = "show_sim_name"
     }
 }

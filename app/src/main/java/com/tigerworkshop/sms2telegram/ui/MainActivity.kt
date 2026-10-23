@@ -170,6 +170,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: android.view.MenuItem): Boolean {
         return when (item.itemId) {
+            R.id.action_allowed_senders -> {
+                startActivity(Intent(this, SenderSettingsActivity::class.java))
+                true
+            }
             R.id.action_how_to_use -> {
                 openHowToUsePage()
                 true
@@ -257,6 +261,10 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        binding.buttonAllowedSenders.setOnClickListener {
+            startActivity(Intent(this, SenderSettingsActivity::class.java))
+        }
+
         // Step 4: test message
         binding.buttonTestMessage.setOnClickListener {
             sendTestMessage()
@@ -285,6 +293,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateSummaryStatuses() {
+        val allowlist = settingsRepository.loadSenderAllowlist()
+        binding.textSenderFilterStatus.text = getString(
+            when {
+                !allowlist.enabled -> R.string.sender_filter_off
+                allowlist.senders.isEmpty() -> R.string.sender_filter_empty
+                else -> R.string.sender_filter_active
+            }, allowlist.senders.size
+        )
         val smsGranted = hasSmsPermission()
         binding.textStatusSmsPermission.text = if (smsGranted) {
             getString(R.string.sms_permission_granted)
@@ -443,6 +459,7 @@ class MainActivity : AppCompatActivity() {
         settingsRepository.saveLastForwardStatus("")
         settingsRepository.setForwardingEnabled(false)
         settingsRepository.setShowSimNameEnabled(false)
+        settingsRepository.saveSenderAllowlist(com.tigerworkshop.sms2telegram.data.SenderAllowlist())
         pendingMessageOutbox.clear()
         TelegramDeliveryWorker.cancel(this)
 

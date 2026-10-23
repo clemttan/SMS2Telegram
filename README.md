@@ -77,3 +77,47 @@ Play Store: [Play Store](https://play.google.com/store/apps/details?id=com.tiger
 ## Build from source
 
 Just clone the project and use the latest version of Android Studio to import it.
+
+### Forward only selected senders
+
+Open **Allowed senders** from the three-dot menu (available before completing
+Telegram setup), or from the forwarding status screen. Add the exact sender
+name or phone number, then enable **Only forward allowed senders**. For example,
+add `HelloBike` to allow that sender only. Use **Remove** to delete an entry.
+Changes save automatically and survive restarting the app.
+
+- Names match the complete SMS originating address, ignoring case and outer
+  whitespace. Message contents are never used to decide the sender.
+- Phone numbers must use the exact country code and formatting shown by the SMS.
+  No substring, wildcard, contact-name, or country-code guessing is performed.
+- An enabled empty list forwards no SMS. Disabling the filter allows all senders
+  and requires confirmation. Existing installations keep forwarding all senders
+  until filtering is enabled.
+- Disallowed incoming SMS are ignored before queuing. Pending messages are
+  checked again before each delivery, so messages from removed senders are
+  discarded on retry. A send already in progress cannot be recalled.
+- Manually initiated test/configuration messages are not SMS and are not filtered.
+- Android SMS/OTP access restrictions still apply.
+
+### Build and test
+
+With JDK 17, Android SDK Platform 36 and Gradle 8.13 installed:
+
+```sh
+gradle testDebugUnitTest lintDebug assembleDebug
+```
+
+The repository does not include the Gradle wrapper JAR. Use an installed Gradle
+8.13 or restore the matching wrapper JAR before invoking `./gradlew`.
+The GitHub Actions workflow runs these checks and uploads the debug APK.
+
+Tests cover matching, persistence, adding/removing senders, an enabled empty
+list, confirmation before allowing all senders, activity recreation, and pending
+messages from removed senders. On a physical phone, additionally verify one SMS
+from an allowed sender and one from an unrelated sender, then repeat after
+restarting the app and retrying an offline delivery.
+
+The debug APK is signed with a development key and cannot update the Play Store
+installation in place. Before granting SMS permission, configure your allowlist
+using the three-dot menu. Configure your own Telegram token and chat; no account
+credentials are included in the APK.
