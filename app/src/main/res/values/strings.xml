@@ -76,7 +76,7 @@
     <string name="open_settings">Open Settings</string>
     <string name="allowed_senders">Allowed senders</string>
     <string name="sender_filter_toggle">Only forward allowed senders</string>
-    <string name="sender_filter_help">Add the exact sender name or phone number shown on your SMS, for example HelloBike. Names ignore letter case. Phone numbers must include the same country code and formatting. Message contents are not checked.</string>
+    <string name="sender_filter_help">Add the exact sender name or phone number shown on your SMS, for example ExampleSender. Names ignore letter case. Phone numbers must include the same country code and formatting. Message contents are not checked.</string>
     <string name="sender_filter_off">Filter off: all senders can be forwarded.</string>
     <string name="sender_filter_empty">No senders allowed. No SMS will be forwarded.</string>
     <string name="sender_filter_active">Filter on: %1$d allowed sender(s). All other SMS are ignored.</string>
@@ -91,4 +91,9 @@
     <string name="sender_disable_title">Allow all senders?</string>
     <string name="sender_disable_message">Turning this filter off allows every SMS sender to be forwarded when forwarding is enabled.</string>
     <string name="sender_disable_confirm">Allow all senders</string>
+    <string name="sender_messages_explanation">Open your Messages app to check or copy a sender name or phone number. Then return here to enter or paste it. SMS2Telegram will not read your inbox or select a sender automatically.</string>
+    <string name="sender_open_messages">Open Messages</string>
+    <string name="sender_enter_manually">Enter manually</string>
+    <string name="sender_save">Save sender</string>
+    <string name="sender_messages_unavailable">No Messages app could be opened. Enter the sender manually.</string>
 </resources>

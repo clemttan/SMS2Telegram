@@ -83,7 +83,7 @@ Just clone the project and use the latest version of Android Studio to import it
 Open **Allowed senders** from the three-dot menu (available before completing
 Telegram setup), or from the forwarding status screen. Add the exact sender
 name or phone number, then enable **Only forward allowed senders**. For example,
-add `HelloBike` to allow that sender only. Use **Remove** to delete an entry.
+add `ExampleSender` to allow that sender only. Use **Remove** to delete an entry.
 Changes save automatically and survive restarting the app.
 
 - Names match the complete SMS originating address, ignoring case and outer
@@ -121,3 +121,11 @@ The debug APK is signed with a development key and cannot update the Play Store
 installation in place. Before granting SMS permission, configure your allowlist
 using the three-dot menu. Configure your own Telegram token and chat; no account
 credentials are included in the APK.
+
+**Add sender flow:** Tap Add sender to see a confirmation with Open Messages,
+Enter manually, and Cancel. Open Messages launches the device's messaging app
+(or Android's chooser). Check/copy the sender there, then return to SMS2Telegram
+to enter or paste it and tap Save sender. Enter manually goes directly to the
+entry field. If no messaging app can be opened, manual entry is offered.
+This is an app confirmation, not a new Android SMS-permission request. The app
+does not read your inbox or automatically extract a selected conversation.

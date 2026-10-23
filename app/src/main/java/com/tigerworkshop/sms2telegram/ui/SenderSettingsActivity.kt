@@ -1,6 +1,10 @@
 package com.tigerworkshop.sms2telegram.ui
 
 import android.os.Bundle
+import android.content.Intent
+import android.content.ActivityNotFoundException
+import android.widget.Toast
+import androidx.core.view.isVisible
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
@@ -15,6 +19,8 @@ class SenderSettingsActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySenderSettingsBinding
     private lateinit var repository: SettingsRepository
 
+    private var returningFromMessages = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySenderSettingsBinding.inflate(layoutInflater)
@@ -22,6 +28,8 @@ class SenderSettingsActivity : AppCompatActivity() {
         repository = SettingsRepository(this)
         binding.toolbar.setNavigationOnClickListener { finish() }
         render()
+        returningFromMessages = savedInstanceState?.getBoolean("returning_from_messages") ?: false
+        if (savedInstanceState?.getBoolean("editing_sender") == true) showSenderInput()
         binding.switchSenderFilter.setOnCheckedChangeListener { _, checked ->
             val current = repository.loadSenderAllowlist()
             if (current.enabled == checked) return@setOnCheckedChangeListener
@@ -43,7 +51,56 @@ class SenderSettingsActivity : AppCompatActivity() {
             }
         }
         binding.inputSender.doAfterTextChanged { binding.inputLayoutSender.error = null }
-        binding.buttonAddSender.setOnClickListener { addSender() }
+        binding.buttonAddSender.setOnClickListener {
+            if (binding.inputLayoutSender.isVisible) addSender() else showAddSenderOptions()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (returningFromMessages) {
+            returningFromMessages = false
+            showSenderInput()
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBoolean("returning_from_messages", returningFromMessages)
+        outState.putBoolean("editing_sender", binding.inputLayoutSender.isVisible)
+        super.onSaveInstanceState(outState)
+    }
+
+    private fun showAddSenderOptions() {
+        AlertDialog.Builder(this)
+            .setTitle(R.string.sender_add)
+            .setMessage(R.string.sender_messages_explanation)
+            .setPositiveButton(R.string.sender_open_messages) { _, _ -> openMessages() }
+            .setNeutralButton(R.string.sender_enter_manually) { _, _ -> showSenderInput() }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun openMessages() {
+        returningFromMessages = true
+        try {
+            startActivity(Intent.makeMainSelectorActivity(Intent.ACTION_MAIN, Intent.CATEGORY_APP_MESSAGING))
+        } catch (_: ActivityNotFoundException) {
+            messagesUnavailable()
+        } catch (_: SecurityException) {
+            messagesUnavailable()
+        }
+    }
+
+    private fun messagesUnavailable() {
+        returningFromMessages = false
+        showSenderInput()
+        Toast.makeText(this, R.string.sender_messages_unavailable, Toast.LENGTH_LONG).show()
+    }
+
+    private fun showSenderInput() {
+        binding.inputLayoutSender.isVisible = true
+        binding.buttonAddSender.setText(R.string.sender_save)
+        binding.inputSender.requestFocus()
     }
 
     private fun addSender() {
@@ -56,6 +113,8 @@ class SenderSettingsActivity : AppCompatActivity() {
             else -> {
                 repository.saveSenderAllowlist(current.copy(senders = current.senders + sender))
                 binding.inputSender.text?.clear()
+                binding.inputLayoutSender.isVisible = false
+                binding.buttonAddSender.setText(R.string.sender_add)
                 render()
             }
         }

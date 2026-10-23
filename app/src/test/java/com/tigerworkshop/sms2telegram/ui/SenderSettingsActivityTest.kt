@@ -30,6 +30,7 @@ class SenderSettingsActivityTest {
     @Test fun userCanAddEnableAndRemoveLastSender() {
         val controller = Robolectric.buildActivity(SenderSettingsActivity::class.java).setup()
         val activity = controller.get()
+        beginAdd(activity)
         activity.findViewById<EditText>(R.id.input_sender).setText(" HelloBike ")
         activity.findViewById<android.view.View>(R.id.button_add_sender).performClick()
         activity.findViewById<SwitchMaterial>(R.id.switch_sender_filter).performClick()
@@ -45,11 +46,13 @@ class SenderSettingsActivityTest {
     @Test fun duplicateAndBlankSenderDoNotChangeList() {
         val controller = Robolectric.buildActivity(SenderSettingsActivity::class.java).setup()
         val activity = controller.get()
+        beginAdd(activity)
         val input = activity.findViewById<EditText>(R.id.input_sender)
         val add = activity.findViewById<android.view.View>(R.id.button_add_sender)
         input.setText(" "); add.performClick()
         assertTrue(repository.loadSenderAllowlist().senders.isEmpty())
         input.setText("HelloBike"); add.performClick()
+        beginAdd(activity)
         input.setText("HELLOBIKE"); add.performClick()
         assertEquals(setOf("HelloBike"), repository.loadSenderAllowlist().senders)
         controller.pause().stop().destroy()
@@ -71,6 +74,7 @@ class SenderSettingsActivityTest {
     }
     @Test fun settingsSurviveActivityRecreation() {
         val controller = Robolectric.buildActivity(SenderSettingsActivity::class.java).setup()
+        beginAdd(controller.get())
         controller.get().findViewById<EditText>(R.id.input_sender).setText("HelloBike")
         controller.get().findViewById<android.view.View>(R.id.button_add_sender).performClick()
         controller.get().findViewById<SwitchMaterial>(R.id.switch_sender_filter).performClick()
@@ -80,4 +84,41 @@ class SenderSettingsActivityTest {
         assertEquals("HelloBike", (row.getChildAt(0) as TextView).text.toString())
         controller.pause().stop().destroy()
     }
+    private fun beginAdd(activity: SenderSettingsActivity) {
+        activity.findViewById<android.view.View>(R.id.button_add_sender).performClick()
+        (ShadowDialog.getLatestDialog() as AlertDialog)
+            .getButton(android.content.DialogInterface.BUTTON_NEUTRAL).performClick()
+        org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle()
+    }
+
+    @Test fun openMessagesRequiresConfirmationAndShowsEntryOnReturn() {
+        val controller = Robolectric.buildActivity(SenderSettingsActivity::class.java).setup()
+        val activity = controller.get()
+        activity.findViewById<android.view.View>(R.id.button_add_sender).performClick()
+        assertNull(org.robolectric.Shadows.shadowOf(activity).nextStartedActivity)
+        (ShadowDialog.getLatestDialog() as AlertDialog)
+            .getButton(android.content.DialogInterface.BUTTON_POSITIVE).performClick()
+        org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle()
+        val intent = org.robolectric.Shadows.shadowOf(activity).nextStartedActivity
+        assertNotNull(intent)
+        assertTrue(intent.selector.categories.contains(android.content.Intent.CATEGORY_APP_MESSAGING))
+        controller.pause().resume()
+        assertEquals(android.view.View.VISIBLE, activity.findViewById<android.view.View>(R.id.input_layout_sender).visibility)
+        assertEquals(activity.getString(R.string.sender_save), activity.findViewById<TextView>(R.id.button_add_sender).text.toString())
+        controller.pause().stop().destroy()
+    }
+
+    @Test fun cancelAddSenderDoesNotOpenMessagesOrChangeList() {
+        val controller = Robolectric.buildActivity(SenderSettingsActivity::class.java).setup()
+        val activity = controller.get()
+        activity.findViewById<android.view.View>(R.id.button_add_sender).performClick()
+        (ShadowDialog.getLatestDialog() as AlertDialog)
+            .getButton(android.content.DialogInterface.BUTTON_NEGATIVE).performClick()
+        org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle()
+        assertNull(org.robolectric.Shadows.shadowOf(activity).nextStartedActivity)
+        assertTrue(repository.loadSenderAllowlist().senders.isEmpty())
+        assertEquals(android.view.View.GONE, activity.findViewById<android.view.View>(R.id.input_layout_sender).visibility)
+        controller.pause().stop().destroy()
+    }
+
 }
