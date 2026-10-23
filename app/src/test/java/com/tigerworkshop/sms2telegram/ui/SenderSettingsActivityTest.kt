@@ -15,7 +15,8 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import org.robolectric.shadows.ShadowAlertDialog
+import org.robolectric.shadows.ShadowDialog
+import androidx.appcompat.app.AlertDialog
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [28])
@@ -58,10 +59,10 @@ class SenderSettingsActivityTest {
         val toggle = controller.get().findViewById<SwitchMaterial>(R.id.switch_sender_filter)
         toggle.performClick(); toggle.performClick()
         assertTrue(repository.loadSenderAllowlist().enabled)
-        ShadowAlertDialog.getLatestAlertDialog().getButton(android.content.DialogInterface.BUTTON_NEGATIVE).performClick()
+        (ShadowDialog.getLatestDialog() as AlertDialog).getButton(android.content.DialogInterface.BUTTON_NEGATIVE).performClick()
         assertTrue(toggle.isChecked)
         toggle.performClick()
-        ShadowAlertDialog.getLatestAlertDialog().getButton(android.content.DialogInterface.BUTTON_POSITIVE).performClick()
+        (ShadowDialog.getLatestDialog() as AlertDialog).getButton(android.content.DialogInterface.BUTTON_POSITIVE).performClick()
         assertFalse(repository.loadSenderAllowlist().enabled)
         assertFalse(toggle.isChecked)
         controller.pause().stop().destroy()
