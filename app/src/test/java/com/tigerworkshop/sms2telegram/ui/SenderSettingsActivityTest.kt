@@ -100,7 +100,7 @@ class SenderSettingsActivityTest {
             .getButton(android.content.DialogInterface.BUTTON_POSITIVE).performClick()
         org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle()
         val intent = requireNotNull(org.robolectric.Shadows.shadowOf(activity).nextStartedActivity)
-        assertTrue(intent.selector.categories.contains(android.content.Intent.CATEGORY_APP_MESSAGING))
+        assertTrue(requireNotNull(intent.selector).hasCategory(android.content.Intent.CATEGORY_APP_MESSAGING))
         controller.pause().resume()
         assertEquals(android.view.View.VISIBLE, activity.findViewById<android.view.View>(R.id.input_layout_sender).visibility)
         assertEquals(activity.getString(R.string.sender_save), activity.findViewById<TextView>(R.id.button_add_sender).text.toString())
