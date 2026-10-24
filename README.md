@@ -129,3 +129,23 @@ to enter or paste it and tap Save sender. Enter manually goes directly to the
 entry field. If no messaging app can be opened, manual entry is offered.
 This is an app confirmation, not a new Android SMS-permission request. The app
 does not read your inbox or automatically extract a selected conversation.
+
+### Multiple Telegram recipients
+
+Enter one chat ID per line, or separate IDs with commas, semicolons, or spaces.
+Duplicate IDs are removed. Negative group IDs and @channel usernames are also
+accepted. Every private recipient must open the bot and tap Start first.
+Find Chat IDs adds a recipient instead of replacing the existing list. Use
+**Edit Telegram settings** in the menu to change the token or recipients later.
+Validate and Continue and Send Test Message contact every listed destination;
+validation only saves the new configuration if all test deliveries succeed.
+The token field is masked by default, with an explicit visibility toggle.
+
+Each incoming SMS snapshots its recipients. Delivery progress is saved per
+recipient so a failed destination does not block the others, and retries skip
+recorded successful deliveries. Removing a recipient cancels their remaining
+queued deliveries. Adding a recipient does not send them previously queued SMS
+that already have recipient snapshots. Legacy queue entries bind to the current
+recipient list on their first delivery attempt. An app/process failure after a
+network acknowledgement but before recording success can still cause a duplicate.
+Sender filtering and Android OTP restrictions continue to apply to every delivery.

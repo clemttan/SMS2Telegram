@@ -9,7 +9,7 @@ class SettingsRepository(context: Context) {
     fun saveSettings(token: String, chatId: String) {
         prefs.edit {
             putString(KEY_API_TOKEN, token.trim())
-            putString(KEY_CHAT_ID, chatId.trim())
+            putString(KEY_CHAT_ID, ChatRecipients.parse(chatId).joinToString("\n"))
         }
     }
 
@@ -17,7 +17,7 @@ class SettingsRepository(context: Context) {
         val token = prefs.getString(KEY_API_TOKEN, null)?.takeIf { it.isNotBlank() }
         val chatId = prefs.getString(KEY_CHAT_ID, null)?.takeIf { it.isNotBlank() }
         return if (token != null && chatId != null) {
-            TelegramSettings(token, chatId)
+            runCatching { TelegramSettings(token, chatId).takeIf { it.chatIds.isNotEmpty() } }.getOrNull()
         } else {
             null
         }
@@ -70,7 +70,9 @@ class SettingsRepository(context: Context) {
     data class TelegramSettings(
         val apiToken: String,
         val chatId: String
-    )
+    ) {
+        val chatIds: List<String> = ChatRecipients.parse(chatId)
+    }
 
     companion object {
         private const val PREFS_NAME = "sms_forwarder_prefs"

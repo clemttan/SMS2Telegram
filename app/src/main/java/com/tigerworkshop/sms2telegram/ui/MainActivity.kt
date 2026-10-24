@@ -19,6 +19,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.tigerworkshop.sms2telegram.R
+import com.tigerworkshop.sms2telegram.data.ChatRecipients
 import com.tigerworkshop.sms2telegram.data.PendingMessageOutbox
 import com.tigerworkshop.sms2telegram.data.SettingsRepository
 import com.tigerworkshop.sms2telegram.data.StatusUpdateBus
@@ -170,6 +171,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: android.view.MenuItem): Boolean {
         return when (item.itemId) {
+            R.id.action_edit_telegram -> {
+                showStep(WizardStep.STEP1_CONFIG)
+                true
+            }
             R.id.action_allowed_senders -> {
                 startActivity(Intent(this, SenderSettingsActivity::class.java))
                 true
@@ -331,6 +336,7 @@ class MainActivity : AppCompatActivity() {
         val token = binding.inputToken.text?.toString()?.trim().orEmpty()
         val chatId = binding.inputChatId.text?.toString()?.trim().orEmpty()
 
+        val chatIds = runCatching { ChatRecipients.parse(chatId) }.getOrElse { emptyList() }
         var hasError = false
 
         if (token.isBlank()) {
@@ -340,8 +346,8 @@ class MainActivity : AppCompatActivity() {
             binding.inputLayoutToken.error = null
         }
 
-        if (chatId.isBlank()) {
-            binding.inputLayoutChatId.error = getString(R.string.error_chat_id_required)
+        if (chatIds.isEmpty()) {
+            binding.inputLayoutChatId.error = getString(R.string.error_chat_ids_invalid)
             hasError = true
         } else {
             binding.inputLayoutChatId.error = null
@@ -352,9 +358,9 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             binding.buttonValidateAndContinue.isEnabled = false
             try {
-                val result = telegramForwarder.sendMessage(
+                val result = telegramForwarder.sendToChats(
                     token = token,
-                    chatId = chatId,
+                    chatIds = chatIds,
                     message = getString(R.string.test_message_body)
                 )
 
@@ -533,9 +539,9 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             binding.buttonTestMessage.isEnabled = false
             try {
-                val result = telegramForwarder.sendMessage(
+                val result = telegramForwarder.sendToChats(
                     token = settings.apiToken,
-                    chatId = settings.chatId,
+                    chatIds = settings.chatIds,
                     message = getString(R.string.test_message_body)
                 )
 
@@ -665,7 +671,7 @@ class MainActivity : AppCompatActivity() {
             .setTitle(R.string.chat_id_selection_title)
             .setItems(entries) { _, which ->
                 val selected = chats[which]
-                binding.inputChatId.setText(selected.id.toString())
+                binding.inputChatId.setText(ChatRecipients.append(binding.inputChatId.text?.toString().orEmpty(), selected.id.toString()))
                 binding.inputLayoutChatId.error = null
                 Toast.makeText(this, getString(R.string.chat_id_selected), Toast.LENGTH_SHORT).show()
             }

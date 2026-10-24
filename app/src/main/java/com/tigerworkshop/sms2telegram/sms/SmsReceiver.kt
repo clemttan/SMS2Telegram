@@ -81,7 +81,8 @@ class SmsReceiver : BroadcastReceiver() {
             return
         }
 
-        if (repository.loadSettings() == null) {
+        val settings = repository.loadSettings()
+        if (settings == null) {
             repository.saveLastForwardStatus("${timeFormatter.format(Date())}: Incomplete settings: Missing API token or Chat ID")
             notifyStatusUpdated()
             return
@@ -119,7 +120,8 @@ class SmsReceiver : BroadcastReceiver() {
 
         outbox.enqueue(
             sender = sender,
-            message = formattedMessage
+            message = formattedMessage,
+            chatIds = settings.chatIds
         )
         val pendingCount = outbox.pendingCount()
         repository.saveLastForwardStatus(

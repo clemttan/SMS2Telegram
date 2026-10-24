@@ -111,13 +111,15 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:hint="@string/hint_api_token">
+                    android:hint="@string/hint_api_token"
+                    app:endIconMode="password_toggle">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/input_token"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:maxLines="2" />
+                        android:inputType="textPassword"
+                        android:singleLine="true" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -133,8 +135,10 @@
                         android:id="@+id/input_chat_id"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="text"
-                        android:maxLines="1" />
+                        android:inputType="textMultiLine|textNoSuggestions"
+                        android:gravity="top|start"
+                        android:minLines="2"
+                        android:maxLines="6" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.button.MaterialButton
