@@ -36,8 +36,22 @@ class TelegramSettingsUiTest {
     private fun latestDialog() =
         org.robolectric.shadows.ShadowDialog.getLatestDialog() as androidx.appcompat.app.AlertDialog
 
+    private fun showPicker(activity: MainActivity) {
+        activity.showChatSelectionDialog(chats)
+        // AlertController applies initial checks while binding the visible rows.
+        val decor = requireNotNull(latestDialog().window).decorView
+        decor.measure(
+            android.view.View.MeasureSpec.makeMeasureSpec(600, android.view.View.MeasureSpec.EXACTLY),
+            android.view.View.MeasureSpec.makeMeasureSpec(800, android.view.View.MeasureSpec.EXACTLY)
+        )
+        decor.layout(0, 0, 600, 800)
+        org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle()
+    }
+
     private fun clickRow(position: Int) {
-        latestDialog().listView.performItemClick(null, position, position.toLong())
+        val list = latestDialog().listView
+        val row = requireNotNull(list.getChildAt(position - list.firstVisiblePosition))
+        list.performItemClick(row, position, position.toLong())
     }
 
     private fun pressDialogButton(which: Int) {
@@ -50,7 +64,7 @@ class TelegramSettingsUiTest {
         val activity = controller.get()
         val ids = activity.findViewById<EditText>(R.id.input_chat_id)
         ids.setText("111")
-        activity.showChatSelectionDialog(chats)
+        showPicker(activity)
         assertTrue(latestDialog().listView.isItemChecked(0))
         assertFalse(latestDialog().listView.isItemChecked(1))
         clickRow(1)
@@ -65,7 +79,7 @@ class TelegramSettingsUiTest {
         val activity = controller.get()
         val ids = activity.findViewById<EditText>(R.id.input_chat_id)
         ids.setText("111")
-        activity.showChatSelectionDialog(chats)
+        showPicker(activity)
         clickRow(1)
         pressDialogButton(android.content.DialogInterface.BUTTON_NEGATIVE)
         assertEquals("111", ids.text.toString())
@@ -77,7 +91,7 @@ class TelegramSettingsUiTest {
         val activity = controller.get()
         val ids = activity.findViewById<EditText>(R.id.input_chat_id)
         ids.setText("111,-100999")
-        activity.showChatSelectionDialog(chats)
+        showPicker(activity)
         clickRow(0)
         clickRow(1)
         pressDialogButton(android.content.DialogInterface.BUTTON_POSITIVE)
@@ -90,7 +104,7 @@ class TelegramSettingsUiTest {
         val activity = controller.get()
         val ids = activity.findViewById<EditText>(R.id.input_chat_id)
         ids.setText("111,222")
-        activity.showChatSelectionDialog(chats)
+        showPicker(activity)
         clickRow(0)
         clickRow(1)
         pressDialogButton(android.content.DialogInterface.BUTTON_POSITIVE)
