@@ -117,4 +117,13 @@ class MultiRecipientDeliveryTest {
         assertTrue(calls.isEmpty())
         assertEquals(0, outbox.pendingCount())
     }
+    @Test fun addingRecipientsDoesNotShareLegacyQueuedSmsWithThem() = runBlocking {
+        repository.saveSettings("fixture-not-a-real-token", "111")
+        outbox.enqueue("ExampleSender", "LEGACY TEST")
+        repository.saveSettings("fixture-not-a-real-token", "111,222")
+        assertEquals(listOf("111"), outbox.peekOldest()!!.pendingChatIds)
+        deliver { 200 }
+        assertEquals(listOf("111"), calls)
+    }
+
 }

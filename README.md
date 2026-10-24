@@ -145,7 +145,7 @@ Each incoming SMS snapshots its recipients. Delivery progress is saved per
 recipient so a failed destination does not block the others, and retries skip
 recorded successful deliveries. Removing a recipient cancels their remaining
 queued deliveries. Adding a recipient does not send them previously queued SMS
-that already have recipient snapshots. Legacy queue entries bind to the current
-recipient list on their first delivery attempt. An app/process failure after a
+that already have recipient snapshots. Legacy queue entries are bound to the existing recipient list before any
+settings change, or on their first delivery attempt if settings have not changed. An app/process failure after a
 network acknowledgement but before recording success can still cause a duplicate.
 Sender filtering and Android OTP restrictions continue to apply to every delivery.

@@ -4,12 +4,21 @@ import android.content.Context
 import androidx.core.content.edit
 
 class SettingsRepository(context: Context) {
+    private val appContext = context.applicationContext
     private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
     fun saveSettings(token: String, chatId: String) {
+        val normalizedIds = ChatRecipients.parse(chatId).joinToString("\n")
+        // Preserve old queued SMS destinations before a recipient-list change.
+        loadSettings()?.let { previous ->
+            val outbox = PendingMessageOutbox(appContext)
+            outbox.listAll().filter { it.pendingChatIds == null }.forEach {
+                outbox.setPendingChatIds(it.id, previous.chatIds)
+            }
+        }
         prefs.edit {
             putString(KEY_API_TOKEN, token.trim())
-            putString(KEY_CHAT_ID, ChatRecipients.parse(chatId).joinToString("\n"))
+            putString(KEY_CHAT_ID, normalizedIds)
         }
     }
 
