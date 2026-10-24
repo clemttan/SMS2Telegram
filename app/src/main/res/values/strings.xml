@@ -42,8 +42,8 @@
     <string name="label_validate_and_continue">Validate and Continue</string>
     <string name="button_get_chat_id">Find Chat IDs</string>
     <string name="button_get_chat_id_loading">Fetching chats...</string>
-    <string name="helper_chat_id">Enter one ID per line, or separate IDs with commas. Find Chat IDs adds a recipient. Every recipient must start your bot first.</string>
-    <string name="chat_id_selection_title">Select a chat</string>
+    <string name="helper_chat_id">Enter one ID per line, or separate IDs with commas. Find Chat IDs lets you tick multiple chats. Every recipient must start your bot first.</string>
+    <string name="chat_id_selection_title">Select chats</string>
     <string name="chat_id_empty">No recent chats found. Please send a message to your bot and try again.</string>
     <string name="chat_id_fetch_error">Unable to load chats: %1$s</string>
     <string name="chat_id_selected">Chat selected.</string>
@@ -98,4 +98,5 @@
     <string name="sender_messages_unavailable">No Messages app could be opened. Enter the sender manually.</string>
     <string name="edit_telegram">Edit Telegram settings</string>
     <string name="error_chat_ids_invalid">Enter valid chat IDs separated by commas or new lines. Channel usernames such as @example_channel are also supported.</string>
+    <string name="chat_ids_apply">Apply</string>
 </resources>

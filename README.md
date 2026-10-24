@@ -135,7 +135,9 @@ does not read your inbox or automatically extract a selected conversation.
 Enter one chat ID per line, or separate IDs with commas, semicolons, or spaces.
 Duplicate IDs are removed. Negative group IDs and @channel usernames are also
 accepted. Every private recipient must open the bot and tap Start first.
-Find Chat IDs adds a recipient instead of replacing the existing list. Use
+Find Chat IDs opens a checkbox selector. Current recipients are preselected;
+tick or untick several chats and tap Apply. Cancel leaves the field unchanged.
+Manually entered IDs absent from the recent-chat results are preserved. Use
 **Edit Telegram settings** in the menu to change the token or recipients later.
 Validate and Continue and Send Test Message contact every listed destination;
 validation only saves the new configuration if all test deliveries succeed.

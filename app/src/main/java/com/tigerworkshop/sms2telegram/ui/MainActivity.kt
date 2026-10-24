@@ -656,7 +656,20 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun showChatSelectionDialog(chats: List<TelegramChatInfo>) {
+    internal fun showChatSelectionDialog(chats: List<TelegramChatInfo>) {
+        val existing = runCatching {
+            ChatRecipients.parse(binding.inputChatId.text?.toString().orEmpty())
+        }.getOrElse {
+            binding.inputLayoutChatId.error = getString(R.string.error_chat_ids_invalid)
+            return
+        }
+        val available = chats.map { it.id.toString() }
+        val checked = BooleanArray(chats.size) { available[it] in existing }
+        // Keep manually entered destinations which Telegram did not return in recent updates.
+        val unlisted = existing.filterNot { it in available }
+        binding.inputChatId.clearFocus()
+        (getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as? android.view.inputmethod.InputMethodManager)
+            ?.hideSoftInputFromWindow(binding.inputChatId.windowToken, 0)
         val entries = chats.map { chat ->
             val labelName = when {
                 !chat.title.isNullOrBlank() -> chat.title
@@ -669,11 +682,13 @@ class MainActivity : AppCompatActivity() {
 
         AlertDialog.Builder(this)
             .setTitle(R.string.chat_id_selection_title)
-            .setItems(entries) { _, which ->
-                val selected = chats[which]
-                binding.inputChatId.setText(ChatRecipients.append(binding.inputChatId.text?.toString().orEmpty(), selected.id.toString()))
+            .setMultiChoiceItems(entries, checked) { _, which, isChecked ->
+                checked[which] = isChecked
+            }
+            .setPositiveButton(R.string.chat_ids_apply) { _, _ ->
+                val selected = available.filterIndexed { index, _ -> checked[index] }
+                binding.inputChatId.setText((unlisted + selected).distinct().joinToString("\n"))
                 binding.inputLayoutChatId.error = null
-                Toast.makeText(this, getString(R.string.chat_id_selected), Toast.LENGTH_SHORT).show()
             }
             .setNegativeButton(android.R.string.cancel, null)
             .show()

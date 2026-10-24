@@ -11,8 +11,8 @@ android {
         applicationId = "com.tigerworkshop.sms2telegram"
         minSdk = 21
         targetSdk = 36
-        versionCode = 8
-        versionName = "1.3.2-multi-chat"
+        versionCode = 9
+        versionName = "1.3.3-multi-select"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
