@@ -1,153 +1,51 @@
 # Minimalist Android SMS to Telegram Forwarder
 
-No Ads, No Pro/Premium, No Tracking, No Unnecessary Permissions.
+Free and open source under the MIT license. Supports Android 5.0+ without requiring Google Play services.
 
-Free & Open Source under MIT license, built for common good.
-
-Support Android 5.0+ with no dependencies (Not even Play Store).
+Forward incoming SMS to your own Telegram bot and selected chats. SMS may contain sensitive information; review the code and choose recipients carefully. Messages are transmitted to Telegram through its Bot API.
 
 ![Screenshots](docs/images/cover.png)
 
-## Motivation
+## Setup
 
-I use old Android phone to receive OTP from multiple numbers.
+1. Open [@BotFather](https://t.me/botfather) in Telegram, use `/newbot`, and follow its instructions.
+2. Copy the bot token into **Telegram Bot API Token**. Keep the token private; anyone with it can control the bot.
+3. Each private recipient must open the bot and tap **Start**. Enter their chat IDs or use **Find Chat IDs** to select several chats with checkboxes.
+4. Tap **Apply**, then **Validate and Continue**. Validation sends a test message to every destination and saves settings only if all succeed.
+5. Configure **Allowed senders** before granting SMS permission if you want restricted forwarding. Filtering defaults off and otherwise permits all senders.
 
-Existing apps from Play Store are full of ads, paywalls and some require unnecessary permissions.
+Use **Edit Telegram settings** to change the bot token or recipients. Chat IDs may be separated by commas, semicolons, spaces, or new lines. Duplicate IDs are removed; negative group IDs and `@channel` usernames are supported. The token is masked by default, with a visibility toggle.
 
-Given that SMS OTP are sensitive data and leaking it poses critical security risk.
+## Sender filtering
 
-I decide to make an FOSS Telegram to SMS Forwarder, and share it freely for common good.
+Open **Allowed senders** from the three-dot menu or forwarding status screen. Add or remove sender names and phone numbers, then enable **Only forward allowed senders**. Changes save automatically.
 
-Everyone are free to review the code, compile it themselves and use it risk-free.
+**Add sender** offers **Open Messages**, **Enter manually**, or **Cancel**. Check/copy the originating sender in Messages, return, enter or paste it, and tap **Save sender**. This flow does not read the inbox or automatically import a conversation.
 
-## How to use
+- Matching uses the complete originating address, ignoring case and surrounding whitespace. Phone numbers must use the same country code and formatting as the SMS sender.
+- No message-body, substring, wildcard, contact-name, or country-code matching is performed.
+- An enabled empty list forwards nothing. Disabling the filter requires confirmation and permits all senders.
+- Filtering happens before queuing and is rechecked before each recipient delivery. A request already in flight cannot be recalled.
+- Manual test messages are not filtered. Android SMS and OTP restrictions still apply.
 
-In the next few steps, you will create your own Telegram Bot with official chatbot.
+## Queued deliveries
 
-Therefore your data will not be shared with any third party servers.
+Recipients are recorded when an SMS arrives. Successful deliveries are tracked separately, so failed destinations do not block others and retries skip recorded successes. Removing recipients cancels their pending deliveries; adding recipients does not share messages already assigned to other destinations. Older queue entries bind to the existing recipient list before settings change or on their first delivery attempt.
 
-### Step 1: Create Telegram Bot API Key
+A process failure between Telegram acknowledging a message and the app recording success can still cause a duplicate.
 
-Start a chat with [@BotFather](https://t.me/botfather)
+## Build and test
 
-You:
-> /newbot
-
-BotFather:
-> Alright, a new bot. How are we going to call it? Please choose a name for your bot.
-
-You:
-> SMS2Telegram
-
-BotFather:
-> Good. Now let's choose a username for your bot. It must end in `bot`. Like this, for example: TetrisBot or tetris_bot.
-
-You:
-> SMS2TelegramDemoBot
-
-BotFather:
-> Done! Congratulations on your new bot. You will find it at t.me/SMS2TelegramDemoBot. You can now add a description, about section and profile picture for your bot, see /help for a list of commands. By the way, when you've finished creating your cool bot, ping our Bot Support if you want a better username for it. Just make sure the bot is fully operational before you do this.
-
-> Use this token to access the HTTP API:
-> 8284599999:AAGbDp-Lk1IJFaoH0fuO6skp3rc-XXX_XXX
-> Keep your token secure and store it safely, it can be used by anyone to control your bot.
-
-> For a description of the Bot API, see this page: https://core.telegram.org/bots/api
-
-Now we got the API Token: *8284599999:AAGbDp-Lk1IJFaoH0fuO6skp3rc-XXX_XXX*
-
-### Step 2: App setup
-
-From the previous step, click on the link of your new bot: *t.me/SMS2TelegramDemoBot*, and click on the big "START" button or send any message to it.
-
-Copy the API Token you obtained from previous step into the "Telegram Bot API Key" field.
-
-Click on the "Find Chat ID" button, and select your Telegram username. The "Telegram Chat ID" field will be automatically filled.
-
-Then click on "Validate and Continue" button to verify and complete the setup.
-
-## Download
-
-Although you are encouraged to build it from source code for maximum security, Play Store and APK are available.
-
-APK Download: [Releases](https://github.com/imTigger/SMS2Telegram/releases/latest)
-
-Play Store: [Play Store](https://play.google.com/store/apps/details?id=com.tigerworkshop.sms2telegram)
-
-## Build from source
-
-Just clone the project and use the latest version of Android Studio to import it.
-
-### Forward only selected senders
-
-Open **Allowed senders** from the three-dot menu (available before completing
-Telegram setup), or from the forwarding status screen. Add the exact sender
-name or phone number, then enable **Only forward allowed senders**. For example,
-add `ExampleSender` to allow that sender only. Use **Remove** to delete an entry.
-Changes save automatically and survive restarting the app.
-
-- Names match the complete SMS originating address, ignoring case and outer
-  whitespace. Message contents are never used to decide the sender.
-- Phone numbers must use the exact country code and formatting shown by the SMS.
-  No substring, wildcard, contact-name, or country-code guessing is performed.
-- An enabled empty list forwards no SMS. Disabling the filter allows all senders
-  and requires confirmation. Existing installations keep forwarding all senders
-  until filtering is enabled.
-- Disallowed incoming SMS are ignored before queuing. Pending messages are
-  checked again before each delivery, so messages from removed senders are
-  discarded on retry. A send already in progress cannot be recalled.
-- Manually initiated test/configuration messages are not SMS and are not filtered.
-- Android SMS/OTP access restrictions still apply.
-
-### Build and test
-
-With JDK 17, Android SDK Platform 36 and Gradle 8.13 installed:
+Import the project in Android Studio, or use JDK 17, Android SDK Platform 36, and Gradle 8.13:
 
 ```sh
 gradle testDebugUnitTest lintDebug assembleDebug
 ```
 
-The repository does not include the Gradle wrapper JAR. Use an installed Gradle
-8.13 or restore the matching wrapper JAR before invoking `./gradlew`.
-The GitHub Actions workflow runs these checks and uploads the debug APK.
+The Gradle wrapper JAR is not included; use installed Gradle or restore the matching wrapper JAR before running `./gradlew`. GitHub Actions runs tests, lint, and a debug build. Tests use fictional sender names, numbers, and chat IDs; they do not configure production recipients.
 
-Tests cover matching, persistence, adding/removing senders, an enabled empty
-list, confirmation before allowing all senders, activity recreation, and pending
-messages from removed senders. On a physical phone, additionally verify one SMS
-from an allowed sender and one from an unrelated sender, then repeat after
-restarting the app and retrying an offline delivery.
+Debug APKs are development builds, not production releases, and cannot update an installation signed with another key. Device testing should cover allowed and blocked senders, app restarts, offline retries, and multiple recipients.
 
-The debug APK is signed with a development key and cannot update the Play Store
-installation in place. Before granting SMS permission, configure your allowlist
-using the three-dot menu. Configure your own Telegram token and chat; no account
-credentials are included in the APK.
+## Downloads
 
-**Add sender flow:** Tap Add sender to see a confirmation with Open Messages,
-Enter manually, and Cancel. Open Messages launches the device's messaging app
-(or Android's chooser). Check/copy the sender there, then return to SMS2Telegram
-to enter or paste it and tap Save sender. Enter manually goes directly to the
-entry field. If no messaging app can be opened, manual entry is offered.
-This is an app confirmation, not a new Android SMS-permission request. The app
-does not read your inbox or automatically extract a selected conversation.
-
-### Multiple Telegram recipients
-
-Enter one chat ID per line, or separate IDs with commas, semicolons, or spaces.
-Duplicate IDs are removed. Negative group IDs and @channel usernames are also
-accepted. Every private recipient must open the bot and tap Start first.
-Find Chat IDs opens a checkbox selector. Current recipients are preselected;
-tick or untick several chats and tap Apply. Cancel leaves the field unchanged.
-Manually entered IDs absent from the recent-chat results are preserved. Use
-**Edit Telegram settings** in the menu to change the token or recipients later.
-Validate and Continue and Send Test Message contact every listed destination;
-validation only saves the new configuration if all test deliveries succeed.
-The token field is masked by default, with an explicit visibility toggle.
-
-Each incoming SMS snapshots its recipients. Delivery progress is saved per
-recipient so a failed destination does not block the others, and retries skip
-recorded successful deliveries. Removing a recipient cancels their remaining
-queued deliveries. Adding a recipient does not send them previously queued SMS
-that already have recipient snapshots. Legacy queue entries are bound to the existing recipient list before any
-settings change, or on their first delivery attempt if settings have not changed. An app/process failure after a
-network acknowledgement but before recording success can still cause a duplicate.
-Sender filtering and Android OTP restrictions continue to apply to every delivery.
+[Releases](https://github.com/imTigger/SMS2Telegram/releases/latest) · [Google Play](https://play.google.com/store/apps/details?id=com.tigerworkshop.sms2telegram)

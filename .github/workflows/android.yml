@@ -2,7 +2,7 @@ name: Android checks and APK
 on:
   pull_request:
   push:
-    branches: [main, feat/sender-allowlist]
+    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read
@@ -32,5 +32,5 @@ jobs:
             app/build/reports/lint-results-debug.*
       - uses: actions/upload-artifact@v4
         with:
-          name: SMS2Telegram-sender-filter-debug
+          name: SMS2Telegram-debug
           path: app/build/outputs/apk/debug/app-debug.apk
