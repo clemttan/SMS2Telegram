@@ -77,3 +77,77 @@ Play Store: [Play Store](https://play.google.com/store/apps/details?id=com.tiger
 ## Build from source
 
 Just clone the project and use the latest version of Android Studio to import it.
+
+### Forward only selected senders
+
+Open **Allowed senders** from the three-dot menu (available before completing
+Telegram setup), or from the forwarding status screen. Add the exact sender
+name or phone number, then enable **Only forward allowed senders**. For example,
+add `ExampleSender` to allow that sender only. Use **Remove** to delete an entry.
+Changes save automatically and survive restarting the app.
+
+- Names match the complete SMS originating address, ignoring case and outer
+  whitespace. Message contents are never used to decide the sender.
+- Phone numbers must use the exact country code and formatting shown by the SMS.
+  No substring, wildcard, contact-name, or country-code guessing is performed.
+- An enabled empty list forwards no SMS. Disabling the filter allows all senders
+  and requires confirmation. Existing installations keep forwarding all senders
+  until filtering is enabled.
+- Disallowed incoming SMS are ignored before queuing. Pending messages are
+  checked again before each delivery, so messages from removed senders are
+  discarded on retry. A send already in progress cannot be recalled.
+- Manually initiated test/configuration messages are not SMS and are not filtered.
+- Android SMS/OTP access restrictions still apply.
+
+### Build and test
+
+With JDK 17, Android SDK Platform 36 and Gradle 8.13 installed:
+
+```sh
+gradle testDebugUnitTest lintDebug assembleDebug
+```
+
+The repository does not include the Gradle wrapper JAR. Use an installed Gradle
+8.13 or restore the matching wrapper JAR before invoking `./gradlew`.
+The GitHub Actions workflow runs these checks and uploads the debug APK.
+
+Tests cover matching, persistence, adding/removing senders, an enabled empty
+list, confirmation before allowing all senders, activity recreation, and pending
+messages from removed senders. On a physical phone, additionally verify one SMS
+from an allowed sender and one from an unrelated sender, then repeat after
+restarting the app and retrying an offline delivery.
+
+The debug APK is signed with a development key and cannot update the Play Store
+installation in place. Before granting SMS permission, configure your allowlist
+using the three-dot menu. Configure your own Telegram token and chat; no account
+credentials are included in the APK.
+
+**Add sender flow:** Tap Add sender to see a confirmation with Open Messages,
+Enter manually, and Cancel. Open Messages launches the device's messaging app
+(or Android's chooser). Check/copy the sender there, then return to SMS2Telegram
+to enter or paste it and tap Save sender. Enter manually goes directly to the
+entry field. If no messaging app can be opened, manual entry is offered.
+This is an app confirmation, not a new Android SMS-permission request. The app
+does not read your inbox or automatically extract a selected conversation.
+
+### Multiple Telegram recipients
+
+Enter one chat ID per line, or separate IDs with commas, semicolons, or spaces.
+Duplicate IDs are removed. Negative group IDs and @channel usernames are also
+accepted. Every private recipient must open the bot and tap Start first.
+Find Chat IDs opens a checkbox selector. Current recipients are preselected;
+tick or untick several chats and tap Apply. Cancel leaves the field unchanged.
+Manually entered IDs absent from the recent-chat results are preserved. Use
+**Edit Telegram settings** in the menu to change the token or recipients later.
+Validate and Continue and Send Test Message contact every listed destination;
+validation only saves the new configuration if all test deliveries succeed.
+The token field is masked by default, with an explicit visibility toggle.
+
+Each incoming SMS snapshots its recipients. Delivery progress is saved per
+recipient so a failed destination does not block the others, and retries skip
+recorded successful deliveries. Removing a recipient cancels their remaining
+queued deliveries. Adding a recipient does not send them previously queued SMS
+that already have recipient snapshots. Legacy queue entries are bound to the existing recipient list before any
+settings change, or on their first delivery attempt if settings have not changed. An app/process failure after a
+network acknowledgement but before recording success can still cause a duplicate.
+Sender filtering and Android OTP restrictions continue to apply to every delivery.

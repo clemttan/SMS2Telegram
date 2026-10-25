@@ -11,8 +11,8 @@ android {
         applicationId = "com.tigerworkshop.sms2telegram"
         minSdk = 21
         targetSdk = 36
-        versionCode = 7
-        versionName = "1.3.1"
+        versionCode = 9
+        versionName = "1.3.3-multi-select"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -41,6 +41,10 @@ android {
         jvmTarget = "17"
     }
 
+    testOptions {
+        unitTests.isIncludeAndroidResources = true
+    }
+
     buildFeatures {
         viewBinding = true
     }
@@ -58,6 +62,9 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
     testImplementation("junit:junit:4.13.2")
+    testImplementation("org.robolectric:robolectric:4.14.1")
+    testImplementation("androidx.test:core:1.6.1")
+    testImplementation("androidx.work:work-testing:2.10.0")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
 }
