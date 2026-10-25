@@ -31,10 +31,10 @@ class SenderSettingsActivityTest {
         val controller = Robolectric.buildActivity(SenderSettingsActivity::class.java).setup()
         val activity = controller.get()
         beginAdd(activity)
-        activity.findViewById<EditText>(R.id.input_sender).setText(" HelloBike ")
+        activity.findViewById<EditText>(R.id.input_sender).setText(" ExampleService ")
         activity.findViewById<android.view.View>(R.id.button_add_sender).performClick()
         activity.findViewById<SwitchMaterial>(R.id.switch_sender_filter).performClick()
-        assertTrue(repository.loadSenderAllowlist().allows("hellobike"))
+        assertTrue(repository.loadSenderAllowlist().allows("exampleservice"))
         assertFalse(repository.loadSenderAllowlist().allows("OtherSender"))
         val row = activity.findViewById<LinearLayout>(R.id.sender_list).getChildAt(0) as LinearLayout
         row.getChildAt(1).performClick()
@@ -51,10 +51,10 @@ class SenderSettingsActivityTest {
         val add = activity.findViewById<android.view.View>(R.id.button_add_sender)
         input.setText(" "); add.performClick()
         assertTrue(repository.loadSenderAllowlist().senders.isEmpty())
-        input.setText("HelloBike"); add.performClick()
+        input.setText("ExampleService"); add.performClick()
         beginAdd(activity)
-        input.setText("HELLOBIKE"); add.performClick()
-        assertEquals(setOf("HelloBike"), repository.loadSenderAllowlist().senders)
+        input.setText("EXAMPLESERVICE"); add.performClick()
+        assertEquals(setOf("ExampleService"), repository.loadSenderAllowlist().senders)
         controller.pause().stop().destroy()
     }
     @Test fun disablingRequiresConfirmationAndCancelKeepsFilter() {
@@ -75,13 +75,13 @@ class SenderSettingsActivityTest {
     @Test fun settingsSurviveActivityRecreation() {
         val controller = Robolectric.buildActivity(SenderSettingsActivity::class.java).setup()
         beginAdd(controller.get())
-        controller.get().findViewById<EditText>(R.id.input_sender).setText("HelloBike")
+        controller.get().findViewById<EditText>(R.id.input_sender).setText("ExampleService")
         controller.get().findViewById<android.view.View>(R.id.button_add_sender).performClick()
         controller.get().findViewById<SwitchMaterial>(R.id.switch_sender_filter).performClick()
         controller.recreate()
         assertTrue(controller.get().findViewById<SwitchMaterial>(R.id.switch_sender_filter).isChecked)
         val row = controller.get().findViewById<LinearLayout>(R.id.sender_list).getChildAt(0) as LinearLayout
-        assertEquals("HelloBike", (row.getChildAt(0) as TextView).text.toString())
+        assertEquals("ExampleService", (row.getChildAt(0) as TextView).text.toString())
         controller.pause().stop().destroy()
     }
     private fun beginAdd(activity: SenderSettingsActivity) {

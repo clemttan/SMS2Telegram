@@ -27,16 +27,16 @@ class SenderFilterIntegrationTest {
     }
     @Test fun settingsPersistAddRemoveAndEnabledEmptyList() {
         assertFalse(repository.loadSenderAllowlist().enabled)
-        repository.saveSenderAllowlist(SenderAllowlist(true, setOf(" HelloBike ", "hellobike", "12345")))
+        repository.saveSenderAllowlist(SenderAllowlist(true, setOf(" ExampleService ", "exampleservice", "12345")))
         val reloaded = SettingsRepository(context).loadSenderAllowlist()
-        assertEquals(setOf("HelloBike", "12345"), reloaded.senders)
+        assertEquals(setOf("ExampleService", "12345"), reloaded.senders)
         assertTrue(reloaded.enabled)
         repository.saveSenderAllowlist(reloaded.copy(senders = emptySet()))
-        assertFalse(SettingsRepository(context).loadSenderAllowlist().allows("HelloBike"))
+        assertFalse(SettingsRepository(context).loadSenderAllowlist().allows("ExampleService"))
     }
     @Test fun removedSendersCannotEscapeViaOfflineQueue() = runBlocking {
         repository.saveSettings("test-token-never-sent", "123")
-        repository.saveSenderAllowlist(SenderAllowlist(true, setOf("HelloBike")))
+        repository.saveSenderAllowlist(SenderAllowlist(true, setOf("ExampleService")))
         outbox.enqueue("OtherSender", "TEST BLOCKED")
         outbox.enqueue("FormerSender", "TEST BLOCKED")
         val result = TestListenableWorkerBuilder<TelegramDeliveryWorker>(context).build().doWork()
@@ -45,8 +45,8 @@ class SenderFilterIntegrationTest {
     }
     @Test fun removingLastSenderDropsPreviouslyQueuedMessages() = runBlocking {
         repository.saveSettings("test-token-never-sent", "123")
-        repository.saveSenderAllowlist(SenderAllowlist(true, setOf("HelloBike")))
-        outbox.enqueue("HelloBike", "TEST BLOCKED AFTER REMOVAL")
+        repository.saveSenderAllowlist(SenderAllowlist(true, setOf("ExampleService")))
+        outbox.enqueue("ExampleService", "TEST BLOCKED AFTER REMOVAL")
         repository.saveSenderAllowlist(SenderAllowlist(true))
         val result = TestListenableWorkerBuilder<TelegramDeliveryWorker>(context).build().doWork()
         assertEquals(ListenableWorker.Result.success(), result)
